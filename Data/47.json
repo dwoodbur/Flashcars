@@ -1,0 +1,26 @@
+{
+  "category": "European History", 
+  "datasetName": "Ch 9 Colonialism", 
+  "gameData": [
+    {
+      "definition": "The stage of human social development and organization that is considered most advanced.", 
+      "term": "Civilization"
+    }, 
+    {
+      "definition": "A policy of extending a country's power and influence through diplomacy or military force.", 
+      "term": "Imperialism"
+    }, 
+    {
+      "definition": "The policy or practice of acquiring full or partial political control over another country, occupying it with settlers, and exploiting it economically.", 
+      "term": "Colonialism"
+    }, 
+    {
+      "definition": "The process of moving and living in such a place.", 
+      "term": "Settlement"
+    }, 
+    {
+      "definition": "The science or practice of farming, including cultivation of the soil for the growing of crops and the rearing of animals to provide food, wool, and other products.", 
+      "term": "Agriculture"
+    }
+  ]
+}

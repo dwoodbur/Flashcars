@@ -1,0 +1,42 @@
+{
+  "category": "101A. US History", 
+  "datasetName": "American Revolution", 
+  "gameData": [
+    {
+      "definition": "A congress convened by British officials in 1754 promoting a unification of British colonies in North America for security and defense against the French.", 
+      "term": "Albany Congress"
+    }, 
+    {
+      "definition": "Two battles, fought on April 19, 1775, that opened the Revolutionary War.", 
+      "term": "Battle of Lexington and Concord"
+    }, 
+    {
+      "definition": "A 1777 British defeat . Major turning point in Revolutionary War. Defeat convinced French to ally with the US against Britain.", 
+      "term": "Battle of Saratoga"
+    }, 
+    {
+      "definition": "On March 5, 1770,  a mob of angry Bostonians began throwing rocks and sticks at the British troops who were occupying the city.", 
+      "term": "Boston Massacre"
+    }, 
+    {
+      "definition": "On December 16, 1773, a band of Bostonians disguised themselves as Native Americans and destroyed chests of tea aboard ships in the harbor.", 
+      "term": "Boston Tea Party"
+    }, 
+    {
+      "definition": "A meeting convened in 1774 for delegates from twelve of the thirteen colonies (Georgia abstained) in order to protest the Intolerable Acts.", 
+      "term": "First Continental Congress"
+    }, 
+    {
+      "definition": "A war waged in North America among the major European powers in mid 1700s. Part of Seven Years war.", 
+      "term": "French and Indian War"
+    }, 
+    {
+      "definition": "Those who chose to support Britain during the Revolutionary War.", 
+      "term": "Loyalists"
+    }, 
+    {
+      "definition": "An economic theory predominant in the 1700s that held that nations should amass wealth to increase their power.", 
+      "term": "Mercantilism"
+    }
+  ]
+}

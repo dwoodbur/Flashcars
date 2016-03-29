@@ -1,0 +1,50 @@
+{
+  "category": "Intro to Psychology", 
+  "datasetName": "Theories and Research", 
+  "gameData": [
+    {
+      "definition": "The school of psychology that views observable, measurable behavior as the appropriate subject matter for psychology ", 
+      "term": "Behaviorism"
+    }, 
+    {
+      "definition": "The term Freud used for both his theory of personality and his therapy for the treatment of psychological disorders", 
+      "term": "Psycho- analysis"
+    }, 
+    {
+      "definition": "The school of psychology that focuses on the uniqueness of human beings and their capacity for choice, growth, and psychological health", 
+      "term": "Humanistic psychology"
+    }, 
+    {
+      "definition": "The scientific study of psychological characteristics that enable individuals and communities to thrive in the face of adversity", 
+      "term": "Positive psychology"
+    }, 
+    {
+      "definition": "Mental processes such as memory, problem-solving, reasoning, decision making, perception, language, and other forms of cognition", 
+      "term": "Cognitive psychology"
+    }, 
+    {
+      "definition": "The school of psychology that emphasizes that individuals perceive objects and patterns as whole units and that the perceived whole is more than the sum of its parts", 
+      "term": "Gestalt psychology"
+    }, 
+    {
+      "definition": "An approach to the study of mental structures and processes that uses the computer as a model for human thinking.", 
+      "term": "Information- processing theory"
+    }, 
+    {
+      "definition": "The school of psychology that studies how human behaviors required for survival have adapted in the face of environmental pressures ", 
+      "term": "Evolutionary psychology"
+    }, 
+    {
+      "definition": "The view that social and cultural factors may be just as powerful as evolutionary and physiological factors in affecting behavior and mental processing ", 
+      "term": "Sociocultural approach"
+    }, 
+    {
+      "definition": "Thorndike's rule that behaviors which have positive outcomes tend to be repeated", 
+      "term": "Law of effect"
+    }, 
+    {
+      "definition": "The ability to learn from experience, to use information, to understand things", 
+      "term": "Intelligence"
+    }
+  ]
+}

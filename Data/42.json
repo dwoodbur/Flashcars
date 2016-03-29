@@ -1,0 +1,30 @@
+{
+  "category": "Spanish Expressions", 
+  "datasetName": "Ch 6 Fill in the Blank", 
+  "gameData": [
+    {
+      "definition": "En mis clases ___________ diferentes temas por medio de Internet y los peri\u00f3dicos.", 
+      "term": "investigamos"
+    }, 
+    {
+      "definition": "Es muy importante _________ lo que est\u00e1 pasando en el mundo.", 
+      "term": "estar al tanto de"
+    }, 
+    {
+      "definition": "Para saber algo sobre la pol\u00edtica, mi profesor sugiere que veamos _________.", 
+      "term": "los noticieros"
+    }, 
+    {
+      "definition": "Voy a escuchar la radio esta noche porque mi ____________ favorita va a transmitir un programa sobre la situaci\u00f3n econ\u00f3mica.", 
+      "term": "emisora"
+    }, 
+    {
+      "definition": "El locutor de este programa es muy justo; siempre explica los dos lados de cualquier tema de modo ___________.", 
+      "term": "imparcial"
+    }, 
+    {
+      "definition": "Algunos locutores solamente explican un lado del tema por lo que me parecen _______.", 
+      "term": "poco fiables"
+    }
+  ]
+}
