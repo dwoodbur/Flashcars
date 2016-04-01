@@ -20,12 +20,31 @@ function Car(pos, size) {
 	};
 	
 	this.draw = function(ctx) {
-		ctx.drawImage(image, pos.x-size.width/2, pos.y-size.height/2);
+		ctx.drawImage(image, pos.x-size.width/2, pos.y-size.height/2-20);
 		//ctx.fillStyle = "red";
 		//ctx.fillRect(pos.x-size.width/2, pos.y-size.height/2, size.width, size.height);
 	};
 	
 	this.moveTo = function(yVal) {
 		target = yVal;
+	};
+	
+	this.setX = function(newX) {
+		pos.x = newX;
+	};
+	
+	this.setY = function(newY) {
+		pos.y = newY;
+	};
+	
+	this.x = function() {
+		return pos.x;
+	};
+	this.y = function() {
+		return pos.y;
+	};
+	
+	this.driveForward = function(pixels) {
+		pos.x += pixels;
 	};
 }

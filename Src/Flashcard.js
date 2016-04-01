@@ -42,7 +42,7 @@ function Flashcard(pos, size, question, canvas) {
 				ctx.fillStyle = "green";
 			else ctx.fillStyle = "red";
 			ctx.font = "25px Arial";
-			ctx.fillText(question.term, pos.x+size.width/2-ctx.measureText(question.term).width/2, pos.y+size.height-20);
+			ctx.fillText(question.term, pos.x+size.width/2-ctx.measureText(question.term).width/2, pos.y+size.height-15);
 		}
 	};
 	

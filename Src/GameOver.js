@@ -1,82 +1,36 @@
 
 
-function TopicMenu(jsonData, gameObjects) {
+function GameOver(gameObjects, points) {
 	/* Private Data */
 	
 	var canvas = document.getElementById('main-canvas');
 	var ctx = canvas.getContext('2d');
-	var transition = -1;
-	var selectedIndex = -1;
+	var playButton = new Button("Rechoose Topic", {x:canvas.width/2, y:canvas.height/2+70}, {w:300, h:50}, "#00cc00", "black", "green", "30px Airstrike");
+	var retryButton = new Button("Retry", {x:canvas.width/2, y:canvas.height/2}, {w:180, h:50}, "#00cc00", "black", "green", "30px Airstrike");
 	
-	// Add button for each json file.
-	var buttons = [];
-	ctx.font = "20px Arial";
-	for(var i in jsonData) {
-		buttons.push(new Button(jsonData[i].category+": "+jsonData[i].datasetName, {x:canvas.width/2, y:30+(i*40)}, 
-			{w:ctx.measureText(jsonData[i].category+": "+jsonData[i].datasetName).width+140, h:30}, 
-			"yellow", "black", "orange", "20px Airstrike"));
-	}
+	var transition = -1;
 	
 	var lanes = [];
 	for(var i=0; i<4; i++)
 		lanes.push(new Lane(i+1, {x:0, y:canvas.height-208+(i*52)}, {width:canvas.width, height:50}, ""));
-		
-	var blackRects = gameObjects.blackRects;
+	var data = data;
 	var trees = gameObjects.trees;
+	var blackRects = gameObjects.blackRects;
 	var clouds = gameObjects.clouds;
-	var speed = 1;
 		
 	this.getObjects = function() {
 		return {trees: trees, blackRects: blackRects, clouds: clouds};
 	};	
 	
-	var selectedTopic = -1;
+	var points = points;
 	
-	var keys = new KeyListener();
-	var keyCodes = {
-		SPACE: 32,
-		UP: 38,
-		DOWN: 40
-	};
-	keyBurns = {}; // key burnouts - (which key, how much longer)
 	
 	
 	/* Public Methods */
 	
 	// Update Method
 	this.update = function() {
-		if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns) && selectedTopic < jsonData.length-1) {
-			selectedTopic++;
-			for(var i in buttons)
-				buttons[i].unhighlight();
-			buttons[selectedTopic].highlight();
-			keyBurns["DOWN"] = 10;
-		}
-		else if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns)) {
-			selectedTopic = Math.max(0, selectedTopic-1);
-			for(var i in buttons)
-				buttons[i].unhighlight();
-			buttons[selectedTopic].highlight();
-			keyBurns["UP"] = 10;
-		}
-		if(keys.isPressed(keyCodes.SPACE) && !("SPACE" in keyBurns) && selectedTopic != -1) {
-			transition = GO_TO_GAME;
-			selectedIndex = selectedTopic;
-		}
-		for(var i in keyBurns) {
-			keyBurns[i]--;
-			if(keyBurns[i] == 0)
-				delete keyBurns[i];
-		}
 		
-		
-		for(var i in blackRects)
-			blackRects[i].update(speed*5);
-		for(var i in trees)
-			if(trees[i].update(speed*5))
-				trees.sort(function(a,b){return a.pos().y-b.pos().y;});
-		for(var i in clouds)
-			clouds[i].update(speed*.4);
 	};
 	
 	// Draw Method
@@ -107,12 +61,23 @@ function TopicMenu(jsonData, gameObjects) {
 			
 		for(var i in trees)
 			trees[i].draw(ctx);
-			
 		for(var i in clouds)
 			clouds[i].draw(ctx);
 			
-		for(var i in buttons)
-			buttons[i].draw(ctx);
+		ctx.font = "90px Airstrike";
+		ctx.fillStyle = "orange";
+		ctx.fillText("Game Over!", 145, 120);
+		ctx.fillStyle = "red";
+		ctx.fillText("Game Over!", 150, 120);
+		
+		ctx.font = "50px Airstrike";
+		ctx.fillStyle = "orange";
+		ctx.fillText("Final Score: "+points, 235, 200);
+		ctx.fillStyle = "red";
+		ctx.fillText("Final Score: "+points, 240, 200);
+		
+		playButton.draw(ctx);
+		retryButton.draw(ctx);
 	};
 	
 	this.getTransition = function() {
@@ -120,7 +85,7 @@ function TopicMenu(jsonData, gameObjects) {
 	};
 	
 	this.getSelectedIndex = function() {
-		return selectedIndex;
+		return -1;
 	};
 	
 	// Returns mouse position, records click type.
@@ -135,12 +100,14 @@ function TopicMenu(jsonData, gameObjects) {
     
     // Handles checks/effects for mouse movement.
     function mouseMove(mousePos) {
-		for(var i in buttons) {
-			if(buttons[i].pointWithin(mousePos))
-				buttons[i].highlight();
-			else if(buttons[i].isHighlighted)
-				buttons[i].unhighlight();
-		}
+    	if(playButton.pointWithin(mousePos))
+    		playButton.highlight();
+    	else if(playButton.isHighlighted())
+    		playButton.unhighlight();
+    	if(retryButton.pointWithin(mousePos))
+    		retryButton.highlight();
+    	else if(retryButton.isHighlighted())
+    		retryButton.unhighlight();
     }
 	
 	// Handles checks/effects of click down.
@@ -149,11 +116,11 @@ function TopicMenu(jsonData, gameObjects) {
 	
 	// Handles checks/effects of click release.
 	function mouseUp(mousePos) {
-		for(var i in buttons) {
-			if(buttons[i].pointWithin(mousePos)) {
-				transition = GO_TO_GAME;
-				selectedIndex = i;
-			}
+		if(playButton.pointWithin(mousePos)) {
+			transition = GO_TO_TOPIC_MENU;
+		}
+		else if(retryButton.pointWithin(mousePos)) {
+			transition = GO_TO_GAME;
 		}
 	}
 	

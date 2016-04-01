@@ -8,7 +8,7 @@ function BlackRectangle(pos, size, screenWidth) {
 	this.update = function(speed) {
 		pos.x -= speed;
 		if(pos.x+size.width <= 0)
-			pos.x += screenWidth+size.width*2;
+			pos.x += screenWidth+size.width;
 	};
 	
 	this.draw = function(ctx) {

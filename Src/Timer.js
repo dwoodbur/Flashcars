@@ -25,7 +25,11 @@ function Timer(pos) {
 		if(timeLeft < 10)
 			timeShift = 20;
 		ctx.fillStyle = "white";
-		ctx.font = "75px Arial";
-		ctx.fillText(timeLeft, pos.x-38+timeShift, pos.y+22);
+		ctx.font = "75px Airstrike";
+		ctx.fillText(timeLeft, pos.x-53+timeShift, pos.y+18);
+	};
+	
+	this.timeLeft = function() {
+		return timeLeft;
 	};
 }
