@@ -50,6 +50,12 @@ function Game(jsonObj, gameObjects) {
 	//cops.push(new Cop({x:car.x()-220, y:car.y()-20}));
 	
 	var carSound = new Audio("Res/Revmotor.wav");
+	var brakesSound = new Audio("Res/brakes.wav");
+	var copSound = new Audio("Res/police.mp3");
+	function resetCopSound() {
+  		copSound.pause();
+  		copSound.currentTime = 0;
+	}
 		
 	this.getObjects = function() {
 		return {trees: trees, blackRects: blackRects, clouds: clouds};
@@ -72,15 +78,15 @@ function Game(jsonObj, gameObjects) {
 	// Update Method
 	this.update = function() {
 		
-		if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns) && selectedLane > 0 && timeSinceSelection <= 0) {
-			selectedLane--;
+		if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns)) {
+			selectedLane = Math.max(0, selectedLane-1);
 			lanes[selectedLane+1].unhighlight();
 			lanes[selectedLane].highlight();
 			car.moveTo(lanes[selectedLane].getYCenter());
 			keyBurns["UP"] = 10;
 		}
-		else if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns) && selectedLane < 3 && timeSinceSelection <= 0) {
-			selectedLane++;
+		else if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns)) {
+			selectedLane = Math.min(3, selectedLane+1);
 			lanes[selectedLane-1].unhighlight();
 			lanes[selectedLane].highlight();
 			car.moveTo(lanes[selectedLane].getYCenter());
@@ -121,6 +127,8 @@ function Game(jsonObj, gameObjects) {
 			}
 			else {
 				cops[i].driveBack(speed*5);
+				if(cops[i].x() < -100)
+					cops.splice(i, 1);
 			}
 		}
 		
@@ -327,7 +335,8 @@ function Game(jsonObj, gameObjects) {
 		speed = 1;
 		streak = 0;
 		fire = null;
-		
+		resetCopSound();
+		brakesSound.play();
 	}
 	
 	function startGame() {
@@ -339,6 +348,7 @@ function Game(jsonObj, gameObjects) {
 	function introduceCops() {
 		cops.push(new Cop({x:-120, y:car.y()-20}));
 		cops.push(new Cop({x:-120, y:car.y()-50}));
+		copSound.play();
 	}
 	
 	function mouseOut(mousePos) {
