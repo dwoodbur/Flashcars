@@ -25,7 +25,7 @@ function Lane(number, pos, size, answer) {
 		ctx.fillRect(pos.x, pos.y, size.width, size.height);
 		
 		ctx.fillStyle = "white";
-		ctx.font = "20px Airstrike";
+		ctx.font = "20px Arial";
 		ctx.fillText(answer, pos.x+size.width/2, pos.y+size.height/2+5);
 	};
 	

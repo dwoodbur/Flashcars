@@ -51,6 +51,13 @@ function MainMenu() {
 	keyBurns = {}; // key burnouts - (which key, how much longer)
 	
 	
+	var bgMusic = new Audio("Res/background.mp3");
+	bgMusic.addEventListener('ended', function() {
+    	this.currentTime = 0;
+    	this.play();
+	}, false);
+	bgMusic.play();
+	
 	/* Public Methods */
 	
 	// Update Method

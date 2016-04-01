@@ -48,6 +48,8 @@ function Game(jsonObj, gameObjects) {
 	var cops = [];
 	//cops.push(new Cop({x:car.x()-240, y:car.y()-50}));
 	//cops.push(new Cop({x:car.x()-220, y:car.y()-20}));
+	
+	var carSound = new Audio("Res/Revmotor.wav");
 		
 	this.getObjects = function() {
 		return {trees: trees, blackRects: blackRects, clouds: clouds};
@@ -205,6 +207,7 @@ function Game(jsonObj, gameObjects) {
 		
 		for(var i in lanes)
 			lanes[i].draw(ctx);
+		
 		car.draw(ctx);
 		
 		cops.sort(function(a,b){return a.pos().y-b.pos().y;});
@@ -310,6 +313,10 @@ function Game(jsonObj, gameObjects) {
 			introduceCops();
 		if(streak == 6)
 			fire = new FireEffect({x:620, y:110}, 1);
+		
+		carSound.play();
+		
+		
 	}
 	
 	function handleIncorrectAnswer() {
@@ -319,7 +326,8 @@ function Game(jsonObj, gameObjects) {
 		timeSinceSelection = 120;
 		speed = 1;
 		streak = 0;
-		fire = null;	
+		fire = null;
+		
 	}
 	
 	function startGame() {

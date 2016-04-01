@@ -24,13 +24,35 @@ function GameOver(gameObjects, points) {
 	
 	var points = points;
 	
+	var keys = new KeyListener();
+	var keyCodes = {
+		SPACE: 32,
+		UP: 38,
+		DOWN: 40
+	};
+	keyBurns = {}; // key burnouts - (which key, how much longer)
 	
 	
 	/* Public Methods */
 	
 	// Update Method
 	this.update = function() {
-		
+		if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns)) {
+			playButton.unhighlight();
+			retryButton.highlight();
+			selectedButton = 0;
+		}
+		else if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns)) {
+			retryButton.unhighlight();
+			playButton.highlight();
+			selectedButton = 1;
+		}
+		if(keys.isPressed(keyCodes.SPACE)) {
+			if(selectedButton == 0)
+				transition = GO_TO_GAME;
+			else if(selectedButton == 1)
+				transition = GO_TO_TOPIC_MENU;
+		}
 	};
 	
 	// Draw Method
