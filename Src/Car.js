@@ -9,6 +9,7 @@ function Car(pos, size) {
 	var dy = 7;
 	
 	this.update = function() {
+		// move to target if not there yet
 		if(target != null) {
 			if(pos.y > target)
 				pos.y = Math.max(target, pos.y-dy);
@@ -21,9 +22,9 @@ function Car(pos, size) {
 	
 	this.draw = function(ctx) {
 		ctx.drawImage(image, pos.x-size.width/2, pos.y-size.height/2-20);
-		//ctx.fillStyle = "red";
-		//ctx.fillRect(pos.x-size.width/2, pos.y-size.height/2, size.width, size.height);
 	};
+	
+	/* PUBLIC METHODS */
 	
 	this.moveTo = function(yVal) {
 		target = yVal;

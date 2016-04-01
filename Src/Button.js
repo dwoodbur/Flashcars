@@ -20,19 +20,21 @@ function Button(name, pos, size, color, subcolor, highlightColor, font) {
 	};
 	
 	this.draw = function(ctx) {
+		// background
 		ctx.fillStyle = "black";
 		ctx.fillRect(pos.x-(size.w/2)-borderWidth, pos.y-(size.h/2)-borderWidth, size.w+borderWidth*2, size.h+borderWidth*2);
-		
-		// Set color of button.
+		// Draw button
 		if(highlighted)
 			ctx.fillStyle = highlightColor;
 		else ctx.fillStyle = color;
-		
 		ctx.fillRect(pos.x-(size.w/2), pos.y-(size.h/2), size.w, size.h);
+		// Draw label.
 		ctx.fillStyle = subcolor;
 		ctx.font = font;
 		ctx.fillText(name, pos.x-(ctx.measureText(name).width/2), pos.y+(parseInt(font)/4));
 	};
+	
+	/* PUBLIC METHODS */
 	
 	this.highlight = function() {
 		highlighted = true;

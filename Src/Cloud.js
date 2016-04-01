@@ -16,6 +16,7 @@ function Cloud(pos, randomImg, randomSpeed) {
 	var speedScale = randomSpeed;	
 	
 	this.update = function(speed) {
+		// slowly shift cloud based on a given random number.
 		pos.x -= speed*speedScale;
 		if(pos.x+image.width/2 < 0) {
 			pos.x += 850+image.width/2 + Math.random()*200;

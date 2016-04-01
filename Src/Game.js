@@ -1,22 +1,39 @@
-
+/* FLASHCARS */
+/* GAME */
+/* Main Game Shell */
+/* Handles scrolling game elements, interactable lanes, 
+ * a car cursor, possible police chasers, UI/effects, 
+ * question selection and game logic. */
 
 function Game(jsonObj, gameObjects) {
-	/* Private Data */
-	
 	var canvas = document.getElementById('main-canvas');
 	var ctx = canvas.getContext('2d');
 	
+	// json data
 	var gameData = jsonObj.gameData;
 	var jsonObj = jsonObj;
 	this.getData = function() {
 		return jsonObj;
 	};
 	
+	// Game data
 	var transition = -1;
-	
 	var gameStarted = false;
+	var speed = 1;
 	
+	// Scoring data
+	var points = 0;
+	var streak = 0;
+	var correctAnswer = null;
+	
+	// Selection data
+	var timeSinceSelection = 0;
+	var correctLane=0;
+	var selectedLane = 0;
+	
+	// Objects
 	var car = new Car({x:-100, y:canvas.height-208+26}, {width:70, height:35});
+	var cops = [];
 	var lanes = [];
 	for(var i=0; i<4; i++) {
 		var readyResponse = "No";
@@ -24,45 +41,22 @@ function Game(jsonObj, gameObjects) {
 			readyResponse = "Bring it on!";
 		lanes.push(new Lane(i+1, {x:0, y:canvas.height-208+(i*52)}, {width:canvas.width, height:50}, readyResponse));
 	}
-	
 	var flashcard = new Flashcard({x:150, y:50}, {width:canvas.width/2+50, height:canvas.height/3},
-		{definition:"Are you ready?", term:"Bring it on!"}, canvas);
-		
+		{definition:"Are you ready?", term:"Bring it on!"}, canvas);	
 	var blackRects = gameObjects.blackRects;
-	
+	var fire = null;
 	var timer = null;
-	
 	var question = null;
-	
-	var speed = 1;
-	var points = 0;
-	var streak = 0;
-	var correctAnswer = null;
-	var timeSinceSelection = 0;
-	var correctLane=0;
-	var selectedLane = 0;
-	
 	var trees = gameObjects.trees;
 	var clouds = gameObjects.clouds;
-	
-	var cops = [];
-	//cops.push(new Cop({x:car.x()-240, y:car.y()-50}));
-	//cops.push(new Cop({x:car.x()-220, y:car.y()-20}));
-	
-	var carSound = new Audio("Res/Revmotor.wav");
-	var brakesSound = new Audio("Res/brakes.wav");
-	var copSound = new Audio("Res/police.mp3");
-	function resetCopSound() {
-  		copSound.pause();
-  		copSound.currentTime = 0;
-	}
-		
 	this.getObjects = function() {
 		return {trees: trees, blackRects: blackRects, clouds: clouds};
-	};	
+	};
+	// Sound data
+	var carSound = new Audio("Res/Revmotor.wav");
 	
-	var fire = null;// = new FireEffect({x:200, y:270}, .5);
 	
+	// Input data
 	var keys = new KeyListener();
 	var keyCodes = {
 		SPACE: 32,
@@ -71,22 +65,32 @@ function Game(jsonObj, gameObjects) {
 	};
 	keyBurns = {}; // key burnouts - (which key, how much longer)
 	
-	
-	
-	/* Public Methods */
-	
 	// Update Method
 	this.update = function() {
-		
-		if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns)) {
-			selectedLane = Math.max(0, selectedLane-1);
+		// Up/down arrows move car, space selects answer.
+		handleKeyInput();
+		// Move car and cops if necessary on road.
+		updateVehicles();
+		// Scroll world, etc.
+		updateAesthetics();
+		// Timer ticks, check for game over.
+		tickGame();
+		// Check answer, execute response.
+		handleAnswer();
+			
+	};
+	
+	// Up/down arrows move car, space selects answer.
+	function handleKeyInput() {
+			if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns) && selectedLane > 0 && timeSinceSelection <= 0) {
+			selectedLane--;
 			lanes[selectedLane+1].unhighlight();
 			lanes[selectedLane].highlight();
 			car.moveTo(lanes[selectedLane].getYCenter());
 			keyBurns["UP"] = 10;
 		}
-		else if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns)) {
-			selectedLane = Math.min(3, selectedLane+1);
+		else if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns) && selectedLane < 3 && timeSinceSelection <= 0) {
+			selectedLane++;
 			lanes[selectedLane-1].unhighlight();
 			lanes[selectedLane].highlight();
 			car.moveTo(lanes[selectedLane].getYCenter());
@@ -110,14 +114,15 @@ function Game(jsonObj, gameObjects) {
 			if(keyBurns[i] == 0)
 				delete keyBurns[i];
 		}
-			
-		
-		car.update();
+	}
+	
+	// Move car and cops if necessary on road.
+	function updateVehicles() {
+			car.update();
 		if(car.x() < 300)
 			car.driveForward(5);
 		
-		if(fire != null)
-			fire.update();
+		
 		
 		for(var i in cops) {
 			if(streak >= 6) {
@@ -127,11 +132,12 @@ function Game(jsonObj, gameObjects) {
 			}
 			else {
 				cops[i].driveBack(speed*5);
-				if(cops[i].x() < -100)
-					cops.splice(i, 1);
 			}
 		}
-		
+	}
+	
+	// Scroll world, etc.
+	function updateAesthetics() {
 		for(var i in blackRects)
 			blackRects[i].update(speed*5);
 		for(var i in trees)
@@ -140,12 +146,21 @@ function Game(jsonObj, gameObjects) {
 				
 		for(var i in clouds)
 			clouds[i].update(speed*.4);
-		
+			
+		if(fire != null)
+			fire.update();
+	}
+	
+	// Timer ticks, check for game over.
+	function tickGame() {
 		if(gameStarted && frames%60 == 0 && timer != null)
 			timer.tick();
 		if(timer != null && timer.timeLeft() <= 0)
 			transition = GO_TO_GAME_OVER;
-			
+	}
+	
+	// Check answer, execute response.
+	function handleAnswer() {
 		if(correctAnswer != null) {
 			timeSinceSelection--;
 			if(timeSinceSelection <= 0) {
@@ -156,76 +171,105 @@ function Game(jsonObj, gameObjects) {
 				generateNewQuestion();
 			}
 		}
-			
-	};
+	}
 	
-	// Draw Method
+	/* DRAW */
+	
 	this.draw = function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// Draw sky and ground
+		drawWorld();
+		// Draw any art/effects elements.
+		drawAesthetics();
+		// Draw game objects like cars.
+		drawObjects();
+		// Draw labels, timer, score.
+		drawUI();	
 		
-		ctx.rect(0, 0, canvas.width, canvas.height/3);
-		var grdSky = ctx.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height/3);
-		grdSky.addColorStop(0, "#0052cc");
-		grdSky.addColorStop(1, "#0099cc");
-		ctx.fillStyle = grdSky;
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		
-		ctx.rect(0, canvas.height/3, canvas.width, 2*canvas.height/3);
-		var grdGround = ctx.createLinearGradient(canvas.width/2, canvas.height/3, canvas.width/2, 2*canvas.height/3);
-		grdGround.addColorStop(0, "green");
-		grdGround.addColorStop(1, "#003300");
-		ctx.fillStyle = grdGround;
-		ctx.fillRect(0, canvas.height/3, canvas.width, canvas.height/3);
-		
-		for(var i in trees)
-			trees[i].draw(ctx);
-		
-		for(var i in clouds)
-			clouds[i].draw(ctx);
-		
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, canvas.height-210, canvas.width, 210);
-	
-		flashcard.draw(ctx, correctAnswer);
-		if(timer != null)
-			timer.draw(ctx);
-		
-		
-		if(fire != null)
-			fire.draw(ctx);
-		ctx.fillStyle = "black";
-		ctx.font = "15px Airstrike";
-		ctx.fillText("Points", 50, canvas.height/2+20);
-		ctx.font = "25px Airstrike";
-		ctx.fillText("Speed", canvas.width-170, canvas.height/2+20);
-		ctx.fillStyle = "white";
-		ctx.font = "60px Airstrike";
-		ctx.fillText(points, 70, canvas.height/2);
-		ctx.fillStyle = "yellow";
-		if(Math.round(speed*45) >= 80)
-			ctx.fillStyle = "red";
-		else if(Math.round(speed*45) >= 60)
-			ctx.fillStyle = "orange";
-		ctx.fillText(Math.round(speed*45), canvas.width-200, canvas.height/2-10);
-		ctx.font = "20px Airstrike";
-		ctx.fillText("MPH", canvas.width-110, canvas.height/2-10);
-		
-		for(var i in blackRects)
-			blackRects[i].draw(ctx);
-		
-		for(var i in lanes)
-			lanes[i].draw(ctx);
-		
-		car.draw(ctx);
-		
-		cops.sort(function(a,b){return a.pos().y-b.pos().y;});
-		for(var i in cops)
-			cops[i].draw(ctx);
 	};
+		// Draw sky and ground
+		function drawWorld() {
+			ctx.rect(0, 0, canvas.width, canvas.height/3);
+			var grdSky = ctx.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height/3);
+			grdSky.addColorStop(0, "#0052cc");
+			grdSky.addColorStop(1, "#0099cc");
+			ctx.fillStyle = grdSky;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			
+			ctx.rect(0, canvas.height/3, canvas.width, 2*canvas.height/3);
+			var grdGround = ctx.createLinearGradient(canvas.width/2, canvas.height/3, canvas.width/2, 2*canvas.height/3);
+			grdGround.addColorStop(0, "green");
+			grdGround.addColorStop(1, "#003300");
+			ctx.fillStyle = grdGround;
+			ctx.fillRect(0, canvas.height/3, canvas.width, canvas.height/3);
+		}
+		// Draw any art/effects elements.
+		function drawAesthetics() {
+			for(var i in trees)
+				trees[i].draw(ctx);
+			
+			for(var i in clouds)
+				clouds[i].draw(ctx);
+			
+			ctx.fillStyle = "white";
+			ctx.fillRect(0, canvas.height-210, canvas.width, 210);
+		}
+		// Draw game objects like cars.
+		function drawObjects() {
+			for(var i in blackRects)
+				blackRects[i].draw(ctx);
+			
+			for(var i in lanes)
+				lanes[i].draw(ctx);
+			
+			car.draw(ctx);
+			
+			cops.sort(function(a,b){return a.pos().y-b.pos().y;});
+			for(var i in cops)
+				cops[i].draw(ctx);
+		}
+		// Draw labels, timer, score.
+		function drawUI() {
+			flashcard.draw(ctx, correctAnswer);
+			if(timer != null)
+				timer.draw(ctx);
+			
+			if(fire != null)
+				fire.draw(ctx);
+			ctx.fillStyle = "black";
+			ctx.font = "15px Airstrike";
+			ctx.fillText("Points", 50, canvas.height/2+20);
+			ctx.font = "25px Airstrike";
+			ctx.fillText("Speed", canvas.width-170, canvas.height/2+20);
+			ctx.fillStyle = "white";
+			ctx.font = "60px Airstrike";
+			ctx.fillText(points, 70, canvas.height/2);
+			ctx.fillStyle = "yellow";
+			if(Math.round(speed*45) >= 80)
+				ctx.fillStyle = "red";
+			else if(Math.round(speed*45) >= 60)
+				ctx.fillStyle = "orange";
+			ctx.fillText(Math.round(speed*45), canvas.width-200, canvas.height/2-10);
+			ctx.font = "20px Airstrike";
+			ctx.fillText("MPH", canvas.width-110, canvas.height/2-10);
+		}
+	
+	/* PUBLIC METHODS */
 	
 	this.getTransition = function() {
 		return transition;
 	};
+	this.points = function() {
+		return points;
+	};
+	
+	/* PRIVATE METHODS */
+	
+	function startGame() {
+		gameStarted = true;
+		generateNewQuestion();
+		timer = new Timer({x:canvas.width-130, y:100});
+	}
 	
 	function generateNewQuestion() {
 		// Get new random question.
@@ -255,6 +299,41 @@ function Game(jsonObj, gameObjects) {
 		}
 	}
 	
+	function handleCorrectAnswer() {
+		correctAnswer = true;
+		timeSinceSelection = 80-Math.min(streak*5, 40);
+		lanes[selectedLane].markRight();
+		if(streak < 6)
+			points++;
+		else points += 2;
+		speed += .15;
+		streak++;
+		if(streak >= 6 && cops.length == 0)
+			introduceCops();
+		if(streak == 6)
+			fire = new FireEffect({x:620, y:110}, 1);
+		
+		carSound.play();
+	}
+	
+	function handleIncorrectAnswer() {
+		correctAnswer = false;
+		lanes[selectedLane].markWrong();
+		lanes[correctLane].markRight();
+		timeSinceSelection = 120;
+		speed = 1;
+		streak = 0;
+		fire = null;
+		
+	}
+	
+	function introduceCops() {
+		cops.push(new Cop({x:-120, y:car.y()-20}));
+		cops.push(new Cop({x:-120, y:car.y()-50}));
+	}
+	
+	/* MOUSE EVENT FUNCTIONS */
+	
 	// Returns mouse position, records click type.
 	function getMousePos(evt) {
     	var rect = canvas.getBoundingClientRect();
@@ -283,72 +362,29 @@ function Game(jsonObj, gameObjects) {
 	function mouseDown(mousePos) {
 	}
 	
-	// Handles checks/effects of click release.
+	// Handles checks/effects of click release, executes response.
 	function mouseUp(mousePos) {
 		if(timeSinceSelection <= 0) {
-		var selectedLaneIndex = -1;
-		for(var i in lanes) {
-			if(lanes[i].pointWithin(mousePos)) {
-				car.moveTo(lanes[i].getYCenter());
-				if(!gameStarted && i == 3) {
-					startGame();
+			var selectedLaneIndex = -1;
+			for(var i in lanes) {
+				if(lanes[i].pointWithin(mousePos)) {
+					car.moveTo(lanes[i].getYCenter());
+					if(!gameStarted && i == 3) {
+						startGame();
+					}
+					else selectedLaneIndex = i;
+					break;
 				}
-				else selectedLaneIndex = i;
-				break;
+			}
+			if(selectedLaneIndex != -1) {
+				if(lanes[i].getAnswer() == question.term) {
+					handleCorrectAnswer();
+				}
+				else {
+					handleIncorrectAnswer();
+				}
 			}
 		}
-		if(selectedLaneIndex != -1) {
-			if(lanes[i].getAnswer() == question.term) {
-				handleCorrectAnswer();
-			}
-			else {
-				handleIncorrectAnswer();
-			}
-		}
-		}
-	}
-	
-	function handleCorrectAnswer() {
-		correctAnswer = true;
-		timeSinceSelection = 80-Math.min(streak*5, 40);
-		lanes[selectedLane].markRight();
-		if(streak < 6)
-			points++;
-		else points += 2;
-		speed += .15;
-		streak++;
-		if(streak >= 6 && cops.length == 0)
-			introduceCops();
-		if(streak == 6)
-			fire = new FireEffect({x:620, y:110}, 1);
-		
-		carSound.play();
-		
-		
-	}
-	
-	function handleIncorrectAnswer() {
-		correctAnswer = false;
-		lanes[selectedLane].markWrong();
-		lanes[correctLane].markRight();
-		timeSinceSelection = 120;
-		speed = 1;
-		streak = 0;
-		fire = null;
-		resetCopSound();
-		brakesSound.play();
-	}
-	
-	function startGame() {
-		gameStarted = true;
-		generateNewQuestion();
-		timer = new Timer({x:canvas.width-130, y:100});
-	}
-	
-	function introduceCops() {
-		cops.push(new Cop({x:-120, y:car.y()-20}));
-		cops.push(new Cop({x:-120, y:car.y()-50}));
-		copSound.play();
 	}
 	
 	function mouseOut(mousePos) {
@@ -366,9 +402,4 @@ function Game(jsonObj, gameObjects) {
 	canvas.addEventListener('mousemove', move, false);
 	canvas.addEventListener('mouseup', up, false);
 	canvas.addEventListener('mouseout', out, false);
-	
-	this.points = function() {
-		return points;
-	};
-
 }

@@ -15,6 +15,7 @@ function Lane(number, pos, size, answer) {
 	};
 	
 	this.draw = function(ctx) {
+		// Color differently for selection.
 		if(wrong)
 			ctx.fillStyle = "red";
 		else if(right)
@@ -23,11 +24,13 @@ function Lane(number, pos, size, answer) {
 			ctx.fillStyle = "grey";
 		else ctx.fillStyle = "black";
 		ctx.fillRect(pos.x, pos.y, size.width, size.height);
-		
+		// Answer.
 		ctx.fillStyle = "white";
 		ctx.font = "20px Arial";
 		ctx.fillText(answer, pos.x+size.width/2, pos.y+size.height/2+5);
 	};
+	
+	/* PUBLIC METHODS */
 	
 	this.highlight = function() {
 		highlighted = true;

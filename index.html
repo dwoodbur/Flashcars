@@ -7,6 +7,15 @@
         
         <link rel="stylesheet" type="text/css" href="Src/style.css"></script>
         
+        <script>
+        	var bgMusic = new Audio("Res/background.mp3");
+			bgMusic.addEventListener('ended', function() {
+    			this.currentTime = 0;
+    			this.play();
+			}, false);
+			//bgMusic.play();
+		</script>
+        
         <!-- Game Loop -->
         <script defer src="Src/main-loop.js"></script>
         

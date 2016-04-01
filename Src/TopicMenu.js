@@ -1,8 +1,8 @@
-
+/* FLASHCARS */
+/* TOPIC MENU */
+/* Player either clicks or uses arrows/space to select which topic to play with. Proceeds to the Game. */
 
 function TopicMenu(jsonData, gameObjects) {
-	/* Private Data */
-	
 	var canvas = document.getElementById('main-canvas');
 	var ctx = canvas.getContext('2d');
 	var transition = -1;
@@ -41,79 +41,113 @@ function TopicMenu(jsonData, gameObjects) {
 	keyBurns = {}; // key burnouts - (which key, how much longer)
 	
 	
-	/* Public Methods */
-	
-	// Update Method
+	/* UPDATE */
+
 	this.update = function() {
-		if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns) && selectedTopic < jsonData.length-1) {
-			selectedTopic++;
-			for(var i in buttons)
-				buttons[i].unhighlight();
-			buttons[selectedTopic].highlight();
-			keyBurns["DOWN"] = 10;
-		}
-		else if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns)) {
-			selectedTopic = Math.max(0, selectedTopic-1);
-			for(var i in buttons)
-				buttons[i].unhighlight();
-			buttons[selectedTopic].highlight();
-			keyBurns["UP"] = 10;
-		}
-		if(keys.isPressed(keyCodes.SPACE) && !("SPACE" in keyBurns) && selectedTopic != -1) {
-			transition = GO_TO_GAME;
-			selectedIndex = selectedTopic;
-		}
-		for(var i in keyBurns) {
-			keyBurns[i]--;
-			if(keyBurns[i] == 0)
-				delete keyBurns[i];
-		}
-		
-		
-		for(var i in blackRects)
-			blackRects[i].update(speed*5);
-		for(var i in trees)
-			if(trees[i].update(speed*5))
-				trees.sort(function(a,b){return a.pos().y-b.pos().y;});
-		for(var i in clouds)
-			clouds[i].update(speed*.4);
+		// Update menu selection if up/down is pressed.
+		handleKeyInput();
+		// Update scrolling elements.
+		updateAesthetics;
 	};
+		// Update menu selection if up/down is pressed.
+		function handleKeyInput() {
+			if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns) && selectedTopic < jsonData.length-1)
+				handleDown();
+			else if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns))
+				handleUp();
+			if(keys.isPressed(keyCodes.SPACE) && !("SPACE" in keyBurns) && selectedTopic != -1)
+				handleSpace();
+			for(var i in keyBurns) {
+				keyBurns[i]--;
+				if(keyBurns[i] == 0)
+					delete keyBurns[i];
+			}
+		}
+			// Select next topic.
+			function handleDown() {
+				selectedTopic++;
+				for(var i in buttons)
+					buttons[i].unhighlight();
+				buttons[selectedTopic].highlight();
+				keyBurns["DOWN"] = 10;
+			}
+			// Select previous topic.
+			function handleUp() {
+				selectedTopic = Math.max(0, selectedTopic-1);
+				for(var i in buttons)
+					buttons[i].unhighlight();
+				buttons[selectedTopic].highlight();
+				keyBurns["UP"] = 10;
+			}
+			// Start game.
+			function handleSpace() {
+				transition = GO_TO_GAME;
+				selectedIndex = selectedTopic;
+			}
+			
+		// Update scrolling elements.
+		function updateAesthetics() {
+			for(var i in blackRects)
+				blackRects[i].update(speed*5);
+			for(var i in trees)
+				if(trees[i].update(speed*5))
+					trees.sort(function(a,b){return a.pos().y-b.pos().y;});
+			for(var i in clouds)
+				clouds[i].update(speed*.4);
+		}
 	
-	// Draw Method
+	
+	/* DRAW */
+	
 	this.draw = function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		
-		ctx.rect(0, 0, canvas.width, canvas.height/3);
-		var grdSky = ctx.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height/3);
-		grdSky.addColorStop(0, "#0052cc");
-		grdSky.addColorStop(1, "#0099cc");
-		ctx.fillStyle = grdSky;
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		
-		ctx.rect(0, canvas.height/3, canvas.width, 2*canvas.height/3);
-		var grdGround = ctx.createLinearGradient(canvas.width/2, canvas.height/3, canvas.width/2, 2*canvas.height/3);
-		grdGround.addColorStop(0, "green");
-		grdGround.addColorStop(1, "#003300");
-		ctx.fillStyle = grdGround;
-		ctx.fillRect(0, canvas.height/3, canvas.width, canvas.height/3);
-		
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, canvas.height-210, canvas.width, 210);
-		for(var i in lanes)
-			lanes[i].draw(ctx);
-			
-		for(var i in blackRects)
-			blackRects[i].draw(ctx);
-			
-		for(var i in trees)
-			trees[i].draw(ctx);
-			
-		for(var i in clouds)
-			clouds[i].draw(ctx);
-			
-		for(var i in buttons)
-			buttons[i].draw(ctx);
+		// Draw world.
+		drawWorld();
+		// Draw scrolling elements.
+		drawAesthetics();
+		// Draw buttons.
+		drawUI();
 	};
+		// Draw world.
+		function drawWorld() {
+			ctx.rect(0, 0, canvas.width, canvas.height/3);
+			var grdSky = ctx.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height/3);
+			grdSky.addColorStop(0, "#0052cc");
+			grdSky.addColorStop(1, "#0099cc");
+			ctx.fillStyle = grdSky;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			
+			ctx.rect(0, canvas.height/3, canvas.width, 2*canvas.height/3);
+			var grdGround = ctx.createLinearGradient(canvas.width/2, canvas.height/3, canvas.width/2, 2*canvas.height/3);
+			grdGround.addColorStop(0, "green");
+			grdGround.addColorStop(1, "#003300");
+			ctx.fillStyle = grdGround;
+			ctx.fillRect(0, canvas.height/3, canvas.width, canvas.height/3);
+		}
+		
+		// Draw scrolling elements.
+		function drawAesthetics() {
+			ctx.fillStyle = "white";
+			ctx.fillRect(0, canvas.height-210, canvas.width, 210);
+			for(var i in lanes)
+				lanes[i].draw(ctx);
+				
+			for(var i in blackRects)
+				blackRects[i].draw(ctx);
+				
+			for(var i in trees)
+				trees[i].draw(ctx);
+				
+			for(var i in clouds)
+				clouds[i].draw(ctx);
+		}
+		// Draw buttons.
+		function drawUI() {
+			for(var i in buttons)
+				buttons[i].draw(ctx);
+		}
+	
+	/* PUBLIC METHODS */
 	
 	this.getTransition = function() {
 		return transition;
@@ -122,6 +156,8 @@ function TopicMenu(jsonData, gameObjects) {
 	this.getSelectedIndex = function() {
 		return selectedIndex;
 	};
+	
+	/* MOUSE EVENT FUNCTIONS */
 	
 	// Returns mouse position, records click type.
 	function getMousePos(evt) {

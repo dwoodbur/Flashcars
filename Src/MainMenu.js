@@ -1,14 +1,17 @@
-
+/* FLASHCARS */
+/* MAIN MENU*/
+/* Player either clicks or hits Spacebar to go to the Topic Menu */
 
 function MainMenu() {
-	/* Private Data */
-	
 	var canvas = document.getElementById('main-canvas');
 	var ctx = canvas.getContext('2d');
+	var transition = -1;
+	var speed = 1;
+	
+	// UI Elements
 	var playButton = new Button("Play", {x:canvas.width/2, y:canvas.height/2}, {w:100, h:50}, "red", "black", "#00cc00", "30px Airstrike");
 	
-	var transition = -1;
-	
+	// Game elements
 	var lanes = [];
 	for(var i=0; i<4; i++)
 		lanes.push(new Lane(i+1, {x:0, y:canvas.height-208+(i*52)}, {width:canvas.width, height:50}, ""));
@@ -27,7 +30,6 @@ function MainMenu() {
 	this.trees = function() {
 		return trees;
 	};
-	var speed = 1;
 	
 	var clouds = [];
 	for(var i=0; i<9; i++)
@@ -38,10 +40,12 @@ function MainMenu() {
 	};	
 	
 	var car = new Car({x:-800, y:canvas.height-80}, {width:70, height:35});
+	
 	var cops = [];
 	cops.push(new Cop({x:car.x()-240, y:car.y()-50}));
 	cops.push(new Cop({x:car.x()-220, y:car.y()-20}));
 	
+	// Controls
 	var keys = new KeyListener();
 	var keyCodes = {
 		SPACE: 32,
@@ -50,35 +54,45 @@ function MainMenu() {
 	};
 	keyBurns = {}; // key burnouts - (which key, how much longer)
 	
-	
-	var bgMusic = new Audio("Res/background.mp3");
-	bgMusic.addEventListener('ended', function() {
-    	this.currentTime = 0;
-    	this.play();
-	}, false);
-	bgMusic.play();
-	
 	/* Public Methods */
 	
-	// Update Method
+	/* UPDATE */
+	
 	this.update = function() {
+		// Go to next menu on Space.
 		if(keys.isPressed(keyCodes.SPACE))
 			transition = GO_TO_TOPIC_MENU;
 		
-		car.driveForward(10);
-		for(var i in cops)
-			cops[i].driveForward(10);
-		if(car.x() > 3000) {
-			car.setX(-800);
-			car.setY(getRandomLaneY());
-			for(var i in cops) {
-				cops[i].setX(car.x()-220-(i*20));
-				cops[i].setY(car.y()-20-(i*30));
-			}
-		}
-		for(var i in clouds)
-			clouds[i].update(.4);
+		// Move car/cops along road.
+		updateObjects();
 	};
+	
+		function updateObjects() {
+			// Move vehicles along road.
+			car.driveForward(10);
+			for(var i in cops)
+				cops[i].driveForward(10);
+			// Reset vehicles at start if too far.
+			if(car.x() > 3000) {
+				car.setX(-800);
+				car.setY(getRandomLaneY());
+				for(var i in cops) {
+					cops[i].setX(car.x()-220-(i*20));
+					cops[i].setY(car.y()-20-(i*30));
+				}
+			}
+			// Update aesthetic elements.
+			for(var i in clouds)
+				clouds[i].update(.4);
+		}
+	
+	/* PUBLIC METHODS */
+	
+	this.getTransition = function() {
+		return transition;
+	};
+	
+	/* PRIVATE FUNCTIONS */
 	
 	function getRandomLaneY() {
 		var r = Math.random();
@@ -91,62 +105,67 @@ function MainMenu() {
 		else return 510;
 	}
 	
-	// Draw Method
+	/* DRAW */
+	
 	this.draw = function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		
-		ctx.rect(0, 0, canvas.width, canvas.height/3);
-		var grdSky = ctx.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height/3);
-		grdSky.addColorStop(0, "#0052cc");
-		grdSky.addColorStop(1, "#0099cc");
-		ctx.fillStyle = grdSky;
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		
-		ctx.rect(0, canvas.height/3, canvas.width, 2*canvas.height/3);
-		var grdGround = ctx.createLinearGradient(canvas.width/2, canvas.height/3, canvas.width/2, 2*canvas.height/3);
-		grdGround.addColorStop(0, "green");
-		grdGround.addColorStop(1, "#003300");
-		ctx.fillStyle = grdGround;
-		ctx.fillRect(0, canvas.height/3, canvas.width, canvas.height/3);
-		
-		for(var i in trees)
-			trees[i].draw(ctx);
-			
-		for(var i in clouds)
-			clouds[i].draw(ctx);
-		
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, canvas.height-210, canvas.width, 210);
-		for(var i in lanes)
-			lanes[i].draw(ctx);
-			
-		for(var i in blackRects)
-			blackRects[i].draw(ctx);
-			
-		car.draw(ctx);
-		
-		cops.sort(function(a,b){return a.pos().y-b.pos().y;});
-		for(var i in cops)
-			cops[i].draw(ctx);
-			
-		for(var i in clouds)
-			clouds[i].draw(ctx);
-			
-		ctx.font = "90px Airstrike";
-		ctx.fillStyle = "yellow";
-		ctx.fillText("Flashcars!", 135, 120);
-		ctx.fillStyle = "orange";
-		ctx.fillText("Flashcars!", 140, 120);
-		ctx.fillStyle = "black";
-		ctx.font = "20px Airstrike";
-		ctx.fillText("by Dylan Woodbury", 320, 150);
-		
-		playButton.draw(ctx);
+		drawWorld(ctx);
+		drawObjects(ctx);
+		drawUI(ctx);
 	};
 	
-	this.getTransition = function() {
-		return transition;
-	};
+		function drawWorld(ctx) {
+			ctx.rect(0, 0, canvas.width, canvas.height/3);
+			var grdSky = ctx.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height/3);
+			grdSky.addColorStop(0, "#0052cc");
+			grdSky.addColorStop(1, "#0099cc");
+			ctx.fillStyle = grdSky;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			
+			ctx.rect(0, canvas.height/3, canvas.width, 2*canvas.height/3);
+			var grdGround = ctx.createLinearGradient(canvas.width/2, canvas.height/3, canvas.width/2, 2*canvas.height/3);
+			grdGround.addColorStop(0, "green");
+			grdGround.addColorStop(1, "#003300");
+			ctx.fillStyle = grdGround;
+			ctx.fillRect(0, canvas.height/3, canvas.width, canvas.height/3);
+		}
+		
+		function drawObjects(ctx) {
+			for(var i in trees)
+				trees[i].draw(ctx);
+				
+			for(var i in clouds)
+				clouds[i].draw(ctx);
+			
+			ctx.fillStyle = "white";
+			ctx.fillRect(0, canvas.height-210, canvas.width, 210);
+			for(var i in lanes)
+				lanes[i].draw(ctx);
+				
+			for(var i in blackRects)
+				blackRects[i].draw(ctx);
+				
+			car.draw(ctx);
+			
+			cops.sort(function(a,b){return a.pos().y-b.pos().y;});
+			for(var i in cops)
+				cops[i].draw(ctx);
+		}
+		
+		function drawUI(ctx) {
+			ctx.font = "90px Airstrike";
+			ctx.fillStyle = "yellow";
+			ctx.fillText("Flashcars!", 135, 120);
+			ctx.fillStyle = "orange";
+			ctx.fillText("Flashcars!", 140, 120);
+			
+			ctx.fillStyle = "black";
+			ctx.font = "20px Airstrike";
+			ctx.fillText("by Dylan Woodbury", 320, 150);
+			
+			playButton.draw(ctx);
+		}
 	
 	// Returns mouse position, records click type.
 	function getMousePos(evt) {
