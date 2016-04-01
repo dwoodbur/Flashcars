@@ -70,24 +70,25 @@ function Game(jsonObj, gameObjects) {
 	// Update Method
 	this.update = function() {
 		
-		if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns) && selectedLane > 0) {
+		if(keys.isPressed(keyCodes.UP) && !("UP" in keyBurns) && selectedLane > 0 && timeSinceSelection <= 0) {
 			selectedLane--;
 			lanes[selectedLane+1].unhighlight();
 			lanes[selectedLane].highlight();
 			car.moveTo(lanes[selectedLane].getYCenter());
 			keyBurns["UP"] = 10;
 		}
-		else if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns) && selectedLane < 3) {
+		else if(keys.isPressed(keyCodes.DOWN) && !("DOWN" in keyBurns) && selectedLane < 3 && timeSinceSelection <= 0) {
 			selectedLane++;
 			lanes[selectedLane-1].unhighlight();
 			lanes[selectedLane].highlight();
 			car.moveTo(lanes[selectedLane].getYCenter());
 			keyBurns["DOWN"] = 10;
 		}
-		if(keys.isPressed(keyCodes.SPACE) && !("SPACE" in keyBurns) && selectedLane >= 0 && selectedLane <= 3) {
+		if(keys.isPressed(keyCodes.SPACE) && !("SPACE" in keyBurns) && selectedLane >= 0 && selectedLane <= 3 && timeSinceSelection <= 0) {
 			if(gameStarted) {
 				if(lanes[selectedLane].getAnswer() == question.term)
 					handleCorrectAnswer();
+				else handleIncorrectAnswer();
 			}
 			else {
 				if(selectedLane == 3)
@@ -290,13 +291,7 @@ function Game(jsonObj, gameObjects) {
 				handleCorrectAnswer();
 			}
 			else {
-				correctAnswer = false;
-				lanes[i].markWrong();
-				lanes[correctLane].markRight();
-				timeSinceSelection = 120;
-				speed = 1;
-				streak = 0;
-				fire = null;
+				handleIncorrectAnswer();
 			}
 		}
 		}
@@ -315,6 +310,16 @@ function Game(jsonObj, gameObjects) {
 			introduceCops();
 		if(streak == 6)
 			fire = new FireEffect({x:620, y:110}, 1);
+	}
+	
+	function handleIncorrectAnswer() {
+		correctAnswer = false;
+		lanes[selectedLane].markWrong();
+		lanes[correctLane].markRight();
+		timeSinceSelection = 120;
+		speed = 1;
+		streak = 0;
+		fire = null;	
 	}
 	
 	function startGame() {
